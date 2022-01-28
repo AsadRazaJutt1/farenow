@@ -1129,12 +1129,12 @@
 
       $('#file-upload').on('change', function (e) {
         var file = e.target.files[0];
-        $('#company_image').src = URL.createObjectURL(file);
+        $('#company_image').attr("src", URL.createObjectURL(file));
       });
       
       $('#file-upload1').on('change', function (e) {
         var file = e.target.files[0];
-        $('#provider_image').src = URL.createObjectURL(file);
+        $('#provider_image').attr("src",  URL.createObjectURL(file));
       });
 
       const handleHourlyRateChange = ({ name, value, selector }) => {
