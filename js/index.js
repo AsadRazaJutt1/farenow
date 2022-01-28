@@ -234,10 +234,12 @@ $('#registerUser').on('submit', function (e) {
         beforeSend: function () { },
         success: function (response) {
             $(this).trigger('reset');
-            alert('Register successfully');
-
-
-
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Thank you for your interest. We will let you know when we launch.',
+                confirmButtonText: 'Close',
+            });
         }, error: function (request, status, error) {
             if (request?.status == 422) {
                 const { message } = request.responseJSON;
