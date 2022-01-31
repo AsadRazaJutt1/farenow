@@ -40,17 +40,29 @@ const handlePasswordChange = ({ value, error }) => {
 }
 
 const handlePhoneChange = ({ value, error }) => {
-    let regex = /^[0-9]{12,13}$/
+    let regex = /^[0-9]{10,11}$/
     let result = regex.test(value);
-    if (result) {
+    if (result && ($('#user_code').val() == "+1" || $('#user_code').val() == "+92") && value.length == 10) {
         $(error).text('');
         return true;
     } else {
-        $(error).text(`please enter vaild phone number, min: 12 max: 13 digits`);
+        $(error).text(`please enter vaild phone number, 10 digits`);
         return false;
     }
 };
 
+const handleOtpChange = ({ value, error }) => {
+    let regex = /^[0-9]{4,4}$/
+    if (regex.test(otp)) {
+        $('#step-2').prop('disabled', false);
+        $('#otpErr').text('');
+        return true;
+    } else {
+        $('#otpErr').text('please enter 4 digit otp');
+        $('#step-2').prop('disabled', true);
+        return false;
+    }
+}
 
 $("#step-2-user-back").click(function () {
     $("#user-phone-signup").removeClass("d-none");
@@ -111,21 +123,28 @@ $('#registerUser #password_confirmation').on('input', function (e) {
 //   console.log(fname);
 // }
 
+$('#user_phone').on('input', function (e) {
+    handlePhoneChange({ value: e.target.value, error: '#user_phoneErr' });
+});
+
 $('#signupUser').on('submit', function (e) {
     e.preventDefault();
-
-    var formData = new FormData(this);
-    var phone_ = $('#userphone').val();
+    if (handlePhoneChange({ value: $('#user_phone').val(), error: '#user_phoneErr' }) == false) {
+        return false
+    }
+    var phone_ = $('#user_code').val() + $('#user_phone').val();
+    console.log(phone_);
+    localStorage.setItem('user_phone', phone_);
     $.ajax({
         url: `${API}user/signup/phone`,
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
         type: "POST",
-        data: formData,
+        data: {
+            phone: phone_
+        },
         cache: false,
-        contentType: false,
-        processData: false,
         beforeSend: function () { },
         success: function (response) {
             $("#responsemessage").html('<p class="text" style="background-color: aliceblue;color:red;/* border: aliceblue; */border-radius: 14px;padding: 17px;">' + response.message + '</p>');
@@ -136,10 +155,12 @@ $('#signupUser').on('submit', function (e) {
 
 
         }, error: function (request, status, error) {
-
-
-            $("#responsemessage").html('<p class="text" style="background-color: aliceblue;color:red;/* border: aliceblue; */border-radius: 14px;padding: 17px;">' + request?.responseJSON?.message?.phone + '</p>');
-
+            if (request?.status == 422) {
+                $("#responsemessage").html('<p class="text" style="background-color: aliceblue;color:red;/* border: aliceblue; */border-radius: 14px;padding: 17px;">' + request?.responseJSON?.message?.phone + '</p>');
+            }
+            if (request?.status == 500) {
+                $("#responsemessage").html('<p class="text" style="background-color: aliceblue;color:red;/* border: aliceblue; */border-radius: 14px;padding: 17px;">' + `${request.responseText}` + '</p>');
+            }
         }
     });
 
@@ -163,6 +184,7 @@ $('#otpVerify').on('submit', function (e) {
         processData: false,
         beforeSend: function () { },
         success: function (response) {
+            $('#registerUser #phone').val(localStorage.getItem('user_phone'));
             $("#responsemessage").html('<p class="text" style="background-color: aliceblue;color:red;/* border: aliceblue; */border-radius: 14px;padding: 17px;">OTP Verified. Please Register</p>');
 
             $("#user-otp").addClass("d-none");
@@ -170,8 +192,12 @@ $('#otpVerify').on('submit', function (e) {
 
 
         }, error: function (request, status, error) {
-
-            $("#responsemessage").html('<p class="text" style="background-color: aliceblue;color:red;/* border: aliceblue; */border-radius: 14px;padding: 17px;">' + request.responseText + '</p>');
+            if (request?.status == 422) {
+                $("#responsemessage").html('<p class="text" style="background-color: aliceblue;color:red;/* border: aliceblue; */border-radius: 14px;padding: 17px;">' + `${request.responseJSON?.message}` + '</p>');
+            }
+            if (request?.status == 500) {
+                $("#responsemessage").html('<p class="text" style="background-color: aliceblue;color:red;/* border: aliceblue; */border-radius: 14px;padding: 17px;">' + `${request.responseText}` + '</p>');
+            }
 
         }
     });
@@ -186,7 +212,6 @@ $('#registerUser').on('submit', function (e) {
     let first_name = $('#registerUser #first_name').val();
     let last_name = $('#registerUser #last_name').val();
     let email = $('#registerUser #email').val();
-    let phone = $('#registerUser #phone').val();
     let password = $('#registerUser #password').val();
     let password_confirmation = $('#registerUser #password_confirmation').val();
     let zip_code = $('#registerUser #zip_code').val();
@@ -198,9 +223,6 @@ $('#registerUser').on('submit', function (e) {
         error = true;
     }
     if (handleEmailChange({ email, error: `#user_emailErr` }) == false) {
-        error = true;
-    }
-    if (handlePhoneChange({ value: phone, error: `#user_phoneErr` }) == false) {
         error = true;
     }
     if (handlePasswordChange({ value: password, error: `#user_passwordErr` }) == false) {
@@ -234,6 +256,10 @@ $('#registerUser').on('submit', function (e) {
         beforeSend: function () { },
         success: function (response) {
             $(this).trigger('reset');
+            $('#registerUser').trigger("reset");
+            $("#user-step3").addClass("d-none");
+            $("#user-phone-signup").removeClass("d-none");
+            $('#signupUser').trigger("reset");
             Swal.fire({
                 icon: 'success',
                 title: 'Success!',
@@ -265,9 +291,9 @@ $('#registerUser').on('submit', function (e) {
                     $("#user_zip_codeErr").text(message.zip_code);
                 }
             }
-
-            $("#responsemessage").html('<p class="text" style="background-color: aliceblue;color:red;/* border: aliceblue; */border-radius: 14px;padding: 17px;">' + request.responseText + '</p>');
-
+            if (request?.status == 500) {
+                $("#responsemessage").html('<p class="text" style="background-color: aliceblue;color:red;/* border: aliceblue; */border-radius: 14px;padding: 17px;">' + `${request.responseJSON?.message || request.responseText}` + '</p>');
+            }
         }
     });
 
