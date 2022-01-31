@@ -373,7 +373,7 @@
                 <input type="file" name="type" hidden value="Company"/>
                 <div class="form-group">
                   <label for="business_name">Business Name</label>
-                  <input type="text" class="form-control" id="business_name" placeholder="First name" name="business_name" required />
+                  <input type="text" class="form-control" id="business_name" placeholder="Business Name" name="business_name" required />
                   <span id="business_nameErr" class="text-danger" style="font-size: .8rem;"></span>
                 </div>
                 <div class="form-group">
@@ -721,13 +721,14 @@
         $(`.step-${localStorage.getItem('step') == 6 ? 5 : localStorage.getItem('step') }`).removeClass('d-none');
         $('#step-3-back').prop("disabled", true);
       } else {
+        localStorage.clear();
         $('.step-1').removeClass('d-none');
       }
     });
     
     // add  class
     $(document).ready(function () {
-      const API = 'https://api.farenow.com/api/';
+      const API = 'http://127.0.0.1:8000/api/';
       let phone = '';
 
       const getServices = () => {
@@ -764,11 +765,11 @@
       const handlePhoneChange = (phone) => {
         let regex = /^[0-9]{10,11}$/
         let result = regex.test(phone);
-        if ((result && ($(this).find('#code').val() == "+1" && phone.length == 11 || (result && ($(this).find('#code').val() == "+92" && phone.length == 10))))) {
+        if (result && ($(this).find('#code').val() == "+1" || $(this).find('#code').val() == "+92") && phone.length == 10) {
           $('#phoneErr').text('');
           return true;
         } else {
-          $('#phoneErr').text(`please enter vaild phone number, ${$(this).find('#code').val() == '+1' ? 11 : 10} digits`);
+          $('#phoneErr').text(`please enter vaild phone number, ${$(this).find('#code').val() == '+1' ? 10 : 10} digits`);
           return false;
         }
       };
@@ -872,6 +873,7 @@
           $(".step-1").addClass("d-none");
           $(".step-2").removeClass("d-none");
           phone = `${code}${phone}`;
+          localStorage.setItem('phone', phone);
           $("#otpPhone").text(phone);
         }).fail(function (jqXHR) {
           if (jqXHR.status === 422) {
@@ -900,7 +902,7 @@
       });
 
       $('#resend').on('click', function (){
-        let phone= $("#otpPhone").text();
+        let phone = localStorage.getItem('phone');
         $.ajax({
           url: `${API}provider/signup/phone/verify/resend`,
           type: "post",
@@ -923,7 +925,7 @@
         }
         let data = {
           otp: $('#otp').val(),
-          phone: $("#otpPhone").text()
+          phone: localStorage.getItem('phone')
         }
         $.ajax({
           url: `${API}provider/signup/phone/verify`,
@@ -935,8 +937,6 @@
           localStorage.setItem('provider_token', response.data.auth_token);
           $(".step-2").addClass("d-none");
           $(".step-3").removeClass("d-none");
-          phone = `${code}${phone}`;
-          $("#otpPhone").text(phone);
         }).fail(function (jqXHR) {
           if (jqXHR.status === 401) {
             let message = jqXHR.responseJSON.message;
@@ -981,6 +981,9 @@
         if (handleNameChange({ name: "provider_last_name", value:last_name }) == false) {
           error = true;
         }
+
+        localStorage.setItem('provider_first_name', first_name);
+        localStorage.setItem('provider_last_name', last_name);
 
         let spend_each_month  = null;
 
@@ -1264,8 +1267,14 @@
           $('#profile .serverEr6').addClass('d-none');
           $('.step-6-user').addClass('d-none');
           $('.step-1').removeClass('d-none');
+          Swal.fire({
+            icon: 'success',
+            title: 'Success!',
+            text: 'Thank you for your interest. We will let you know when we launch.',
+            confirmButtonText: 'Close',
+          });
           $('#signupProvider').trigger("reset");
-          // localStorage.clear();
+          localStorage.clear();
         }).fail(function (jqXHR) {
           if (jqXHR.status === 422) {
             let errors = jqXHR.responseJSON.message;
@@ -1500,6 +1509,8 @@
       $("#step-individual").click(function () {
         $(".step-5").addClass("d-none");
         $(".step-6-user").removeClass("d-none");
+        $("#profile #first_name").val(localStorage.getItem('provider_first_name'));
+        $("#profile #last_name").val(localStorage.getItem('provider_last_name'));
       });
       // // add class
       $("#step-compnay").click(function () {

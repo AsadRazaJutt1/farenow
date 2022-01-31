@@ -3,7 +3,7 @@ $(document).ready(function () {
     $("#user-phone-signup").addClass("d-none");
 });
 
-const API = 'https://api.farenow.com/api/';
+const API = 'http://127.0.0.1:8000/api/';
 
 const handleNameChange = ({ name, value, error, arg }) => {
     let regex = /^[a-zA-Z ]{1,30}$/;
