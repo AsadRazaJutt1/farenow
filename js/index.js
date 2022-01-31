@@ -204,6 +204,23 @@ $('#otpVerify').on('submit', function (e) {
 
 });
 
+// $('#user_resend').on('click', function () {
+//     let phone = localStorage.getItem('user_phone');
+//     $.ajax({
+//         url: `${API}provider/signup/phone/verify/resend`,
+//         type: "post",
+//         data: { phone },
+//         dataType: "json"
+//     }).done(function (response) {
+//         $('#user_resend_success').removeClass('d-none');
+//         $('#user_resend_success').text('otp sent successfully');
+//     }).fail(function (jqXHR) {
+//         if (jqXHR.status === 500) {
+//             $('#user_resend_fail').removeClass('d-none');
+//             $('#user_resend_fail').text(jqXHR.responseJSON.message || jqXHR.responseText);
+//         }
+//     })
+// });
 
 $('#registerUser').on('submit', function (e) {
     e.preventDefault();

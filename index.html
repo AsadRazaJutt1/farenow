@@ -477,6 +477,8 @@
               </div>
               <!-- <div class="form-term mb-2">How Whould you like customer to contact you?</div> -->
               <form action="" method="post" id="otpVerify">
+                <!-- <div id="user_resend_success" class="alert alert-success text-center d-none"></div>
+                <div id="user_resend_fail" class="alert alert-danger text-center d-none"></div> -->
                 <div class="form-group">
                   <label for="otp">Code.</label>
                   <input type="hidden" name="phone" id="userphone_">
@@ -484,7 +486,10 @@
             
                   <input type="text" class="form-control" id="user-otp" name="otp" placeholder="0 0 0 0" />
                 </div>
-            
+                <!-- <div class="form-term my-2">
+                  Didn't you receive any code? <br />
+                  <a id="user_resend" href="javascript:void(0)">Resend New Code</a>
+                </div> -->
                 <div class="d-flex justify-content-between">
                   <button class="btn btn-primary w-100 mt-3" id="step-2-user-back" type="button">
                     Back
