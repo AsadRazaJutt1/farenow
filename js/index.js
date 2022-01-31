@@ -5,6 +5,20 @@ $(document).ready(function () {
 
 const API = 'https://api.farenow.com/api/';
 
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    showLoading: true,
+    // didOpen: (toast) => {
+    //   toast.addEventListener('mouseenter', Swal.stopTimer)
+    //   toast.addEventListener('mouseleave', Swal.resumeTimer)
+    // }
+
+});
+
 const handleNameChange = ({ name, value, error, arg }) => {
     let regex = /^[a-zA-Z ]{1,30}$/;
     if (regex.test(value)) {
@@ -135,6 +149,11 @@ $('#signupUser').on('submit', function (e) {
     var phone_ = $('#user_code').val() + $('#user_phone').val();
     console.log(phone_);
     localStorage.setItem('user_phone', phone_);
+    Toast.fire({
+        title: 'Loading...',
+        timer: false,
+        showCloseButton: true,
+    });
     $.ajax({
         url: `${API}user/signup/phone`,
         headers: {
@@ -147,6 +166,7 @@ $('#signupUser').on('submit', function (e) {
         cache: false,
         beforeSend: function () { },
         success: function (response) {
+            Toast.close();
             $("#responsemessage").html('<p class="text" style="background-color: aliceblue;color:red;/* border: aliceblue; */border-radius: 14px;padding: 17px;">' + response.message + '</p>');
 
             $("#user-phone-signup").addClass("d-none");
@@ -155,6 +175,7 @@ $('#signupUser').on('submit', function (e) {
 
 
         }, error: function (request, status, error) {
+            Toast.close();
             if (request?.status == 422) {
                 $("#responsemessage").html('<p class="text" style="background-color: aliceblue;color:red;/* border: aliceblue; */border-radius: 14px;padding: 17px;">' + request?.responseJSON?.message?.phone + '</p>');
             }
@@ -171,7 +192,11 @@ $('#otpVerify').on('submit', function (e) {
     e.preventDefault();
 
     var formData = new FormData(this);
-
+    Toast.fire({
+        title: 'Loading...',
+        timer: false,
+        showCloseButton: true,
+    });
     $.ajax({
         url: `${API}user/signup/phone/verify`,
         headers: {
@@ -184,6 +209,7 @@ $('#otpVerify').on('submit', function (e) {
         processData: false,
         beforeSend: function () { },
         success: function (response) {
+            Toast.close();
             $('#registerUser #phone').val(localStorage.getItem('user_phone'));
             $("#responsemessage").html('<p class="text" style="background-color: aliceblue;color:red;/* border: aliceblue; */border-radius: 14px;padding: 17px;">OTP Verified. Please Register</p>');
 
@@ -192,6 +218,7 @@ $('#otpVerify').on('submit', function (e) {
 
 
         }, error: function (request, status, error) {
+            Toast.close();
             if (request?.status == 422) {
                 $("#responsemessage").html('<p class="text" style="background-color: aliceblue;color:red;/* border: aliceblue; */border-radius: 14px;padding: 17px;">' + `${request.responseJSON?.message}` + '</p>');
             }
@@ -259,7 +286,11 @@ $('#registerUser').on('submit', function (e) {
     }
 
     var formData = new FormData(this);
-
+    Toast.fire({
+        title: 'Loading...',
+        timer: false,
+        showCloseButton: true,
+    });
     $.ajax({
         url: `${API}user/signup`,
         headers: {
@@ -272,6 +303,7 @@ $('#registerUser').on('submit', function (e) {
         processData: false,
         beforeSend: function () { },
         success: function (response) {
+            Toast.close();
             $(this).trigger('reset');
             $('#registerUser').trigger("reset");
             $("#user-step3").addClass("d-none");
@@ -284,6 +316,7 @@ $('#registerUser').on('submit', function (e) {
                 confirmButtonText: 'Close',
             });
         }, error: function (request, status, error) {
+            Toast.close();
             if (request?.status == 422) {
                 const { message } = request.responseJSON;
                 if (message.first_name) {

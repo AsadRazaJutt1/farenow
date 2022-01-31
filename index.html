@@ -737,14 +737,36 @@
     
     // add  class
     $(document).ready(function () {
+
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        showLoading: true,
+        // didOpen: (toast) => {
+        //   toast.addEventListener('mouseenter', Swal.stopTimer)
+        //   toast.addEventListener('mouseleave', Swal.resumeTimer)
+        // }
+        
+      });
+
       const API = 'https://api.farenow.com/api/';
+      
       let phone = '';
 
       const getServices = () => {
+        Toast.fire({
+          title: 'Loading...',
+          timer: false,
+          showCloseButton: true,
+        });
         $.ajax({
           url: `${API}user/get-menu`,
           type: 'GET',
           success: (response) => {
+            Toast.close();
             localStorage.setItem('services', JSON.stringify(response.data));
               let services = response.data;
               let html = '<option selected value="" disabled>Select Service</option>';
@@ -871,13 +893,18 @@
           phone: `${code}${phone}`,
           password
         }
-
+        Toast.fire({
+          title: 'Loading...',
+          timer: false,
+          showCloseButton: true,
+        });
         request = $.ajax({
           url: `${API}provider/signup`,
           type: "post",
           data: data,
           dataType: "json"
         }).done(function (response) {
+          Toast.close();
           $(this).find('button').prop("disabled", false);
           $(".step-1").addClass("d-none");
           $(".step-2").removeClass("d-none");
@@ -885,6 +912,7 @@
           localStorage.setItem('phone', phone);
           $("#otpPhone").text(phone);
         }).fail(function (jqXHR) {
+          Toast.close();
           if (jqXHR.status === 422) {
             let errors = jqXHR.responseJSON.message;
             if (errors.email) {
@@ -912,15 +940,22 @@
 
       $('#resend').on('click', function (){
         let phone = localStorage.getItem('phone');
+        Toast.fire({
+          title: 'Loading...',
+          timer: false,
+          showCloseButton: true,
+        });
         $.ajax({
           url: `${API}provider/signup/phone/verify/resend`,
           type: "post",
           data: {phone},
           dataType: "json"
         }).done(function (response) {
+          Toast.close();
             $('#resendSuccess').removeClass('d-none');
             $('#resendSuccess').text('otp sent successfully');
         }).fail(function (jqXHR) {
+          Toast.close();
           if (jqXHR.status === 500) {
             $('.serverEr').removeClass('d-none');
             $('.serverEr').text(jqXHR.responseJSON.message);
@@ -936,17 +971,24 @@
           otp: $('#otp').val(),
           phone: localStorage.getItem('phone')
         }
+        Toast.fire({
+          title: 'Loading...',
+          timer: false,
+          showCloseButton: true,
+        });
         $.ajax({
           url: `${API}provider/signup/phone/verify`,
           type: "post",
           data: data,
           dataType: "json"
         }).done(function (response) {
+          Toast.close();
           // $(this).find('button').prop("disabled", false);
           localStorage.setItem('provider_token', response.data.auth_token);
           $(".step-2").addClass("d-none");
           $(".step-3").removeClass("d-none");
         }).fail(function (jqXHR) {
+          Toast.close();
           if (jqXHR.status === 401) {
             let message = jqXHR.responseJSON.message;
             if (errors.otp) {
@@ -1017,6 +1059,11 @@
           last_name,
           spend_each_month
         }
+        Toast.fire({
+          title: 'Loading...',
+          timer: false,
+          showCloseButton: true,
+        });
         $.ajax({
           url: `${API}provider/signup/name`,
           headers: {
@@ -1026,11 +1073,13 @@
           data: data,
           dataType: "json"
         }).done(function (response) {
+          Toast.close();
           $(".step-3").addClass("d-none");
           $(".step-4").removeClass("d-none");
           localStorage.setItem('step', 4);
           getServices();
         }).fail(function (jqXHR) {
+          Toast.close();
           if (jqXHR.status === 401) {
             let message = jqXHR.responseJSON.message;
             if (message) {
@@ -1107,6 +1156,11 @@
               return Number($(this).data('value'));
             }).get()
           }
+          Toast.fire({
+            title: 'Loading...',
+            timer: false,
+            showCloseButton: true,
+          });
           $.ajax({
             url: `${API}provider/signup/my-services`,
             headers: {
@@ -1116,10 +1170,12 @@
             data,
             dataType: "json",
           }).done(function (response) {
+            Toast.close();
             $(".step-4").addClass("d-none");
             $(".step-5").removeClass("d-none");
             localStorage.setItem('step', 5);
           }).fail(function (jqXHR) {
+            Toast.close();
             if (jqXHR.status === 422) {
               let errors = jqXHR.responseJSON.message;
               if (errors?.service_id) {
@@ -1260,7 +1316,11 @@
         if($('#file-upload1').prop('files')[0] !== undefined){
           data.append('image', $('#file-upload1').prop('files')[0]);
         }
-
+        Toast.fire({
+          title: 'Loading...',
+          timer: false,
+          showCloseButton: true,
+        });
         $.ajax({
           url: `${API}provider/signup/profile`,
           headers: {
@@ -1273,6 +1333,7 @@
           data,
           enctype: 'multipart/form-data',
         }).done(function (response) {
+          Toast.close();
           $('#profile .serverEr6').addClass('d-none');
           $('.step-6-user').addClass('d-none');
           $('.step-1').removeClass('d-none');
@@ -1285,6 +1346,7 @@
           $('#signupProvider').trigger("reset");
           localStorage.clear();
         }).fail(function (jqXHR) {
+          Toast.close();
           if (jqXHR.status === 422) {
             let errors = jqXHR.responseJSON.message;
             if (errors?.first_name) {
@@ -1426,7 +1488,11 @@
         if ($('#file-upload').prop('files')[0] !== undefined) {
           data.append('image', $('#file-upload').prop('files')[0]);
         }
-
+        Toast.fire({
+          title: 'Loading...',
+          timer: false,
+          showCloseButton: true,
+        });
         $.ajax({
           url: `${API}provider/signup/profile`,
           headers: {
@@ -1439,6 +1505,7 @@
           data,
           enctype: 'multipart/form-data',
         }).done(function (response) {
+          Toast.close();
           $('#companyProfile .serverEr6').addClass('d-none');
           $('.step-6-company').addClass('d-none');
           $('.step-1').removeClass('d-none');
@@ -1453,6 +1520,7 @@
           $('#signupProvider').trigger("reset");
           localStorage.clear();
         }).fail(function (jqXHR) {
+          Toast.close();
           if (jqXHR.status === 422) {
             let errors = jqXHR.responseJSON.message;
             if (errors?.first_name) {
